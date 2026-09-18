@@ -34,86 +34,86 @@
 
         /* メトロノームの表示エリア */
         .metronome-display {
-            width: 200px;
-            height: 250px;
+            width: 220px;
+            height: 260px;
             margin: 20px auto;
             position: relative;
-            background: rgba(0, 0, 0, 0.05);
-            border-bottom: 8px solid #555;
+            background: rgba(0, 0, 0, 0.03);
+            border-bottom: 8px solid #444;
             overflow: hidden;
             border-radius: 8px 8px 0 0;
         }
 
-        /* 振り子（画像）を配置する要素 */
+        /* 振り子全体の枠枠 */
         .pendulum {
             position: absolute;
             bottom: 0;
             left: 50%;
-            width: 90px;        /* 画像の幅 */
-            height: 220px;      /* 振り子の高さ */
-            margin-left: -45px; /* 幅の半分だけ左にずらして中央合わせ */
-            
-            /* 回転の軸を下部中央に設定 */
+            width: 100px;
+            height: 230px;
+            margin-left: -50px;
             transform-origin: bottom center;
             transform: rotate(0deg);
-            
-            /* 滑らかな動きのためのCSSトランジション */
             transition: transform 0.1s linear;
         }
 
-        /* 振り子の画像ラッパー */
-        .img-wrapper {
+        /* 画像＋光・影エフェクトを保持する内側コンテナ */
+        .img-container {
             position: relative;
             width: 100%;
             height: 100%;
             display: flex;
             align-items: flex-end;
             justify-content: center;
+            /* 画像の形状に合わせて光・影を内側にクリップ（切り抜き） */
+            overflow: hidden;
+            border-radius: 6px;
         }
 
+        /* 写真本体 */
         .pendulum img {
-            max-width: 100%;
-            max-height: 100%;
+            width: 100%;
+            height: 100%;
             object-fit: contain;
-            /* 基本的な影（本体の影） */
-            filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.3));
-            transition: filter 0.3s ease;
+            display: block;
         }
 
-        /* 光の反射・グラデーションオーバーレイ */
-        .light-effect {
+        /* 写真の表面（内側）に付与する光の反射・影レイヤー */
+        .photo-light-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none; /* 画像のクリック等を邪魔しない */
+            pointer-events: none;
             opacity: 0;
             transition: opacity 0.3s ease;
-            
-            /* 斜めの光ハイライトと影のグラデーション */
+
+            /* 
+               写真自体に反射（ハイライト）と影（陰影）をつける対角グラデーション
+               - 左上：強い光の反射（白）
+               - 中央：元の画像の色
+               - 右下：落ち込みの影（黒）
+            */
             background: linear-gradient(
-                135deg, 
-                rgba(255, 255, 255, 0.6) 0%, 
-                rgba(255, 255, 255, 0.1) 40%, 
-                rgba(0, 0, 0, 0.15) 70%, 
-                rgba(0, 0, 0, 0.4) 100%
+                125deg,
+                rgba(255, 255, 255, 0.65) 0%,
+                rgba(255, 255, 255, 0.25) 30%,
+                rgba(0, 0, 0, 0) 50%,
+                rgba(0, 0, 0, 0.35) 80%,
+                rgba(0, 0, 0, 0.65) 100%
             );
-            /* 画像の形に合わせて光を切り抜く設定 */
-            mix-blend-mode: overlay;
+            
+            /* 写真の色となじませるブレンドモード */
+            mix-blend-mode: hard-light;
         }
 
-        /* 3D効果モード ON 時のスタイル */
-        .pendulum.effect-on .light-effect {
+        /* モードON時に「写真自体への光と影」を表示 */
+        .pendulum.effect-on .photo-light-overlay {
             opacity: 1;
         }
 
-        .pendulum.effect-on img {
-            /* 影を濃くして立体感を高める */
-            filter: drop-shadow(5px 10px 8px rgba(0, 0, 0, 0.5));
-        }
-
-        /* コントロールエリア */
+        /* コントロールパネル */
         .controls {
             margin-top: 15px;
             display: flex;
@@ -177,10 +177,10 @@
 
         .file-input {
             font-size: 0.85rem;
-            max-width: 200px;
+            max-width: 180px;
         }
 
-        /* トグルスイッチの見た目 */
+        /* スイッチ（ON/OFF） */
         .switch {
             position: relative;
             display: inline-block;
@@ -229,35 +229,35 @@
 <div class="container">
     <h2>画像メトロノーム</h2>
 
-    <!-- メトロノーム画面 -->
+    <!-- メトロノーム表示エリア -->
     <div class="metronome-display">
         <div class="pendulum" id="pendulum">
-            <div class="img-wrapper">
-                <!-- 初期画像（メトロノーム針のSVG） -->
-                <img id="pendulumImg" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='200'><rect width='8' height='180' x='46' y='20' fill='%23333'/><circle cx='50' cy='60' r='18' fill='%23d9534f'/></svg>" alt="メトロノームの針">
-                <!-- 光と影のエフェクト層 -->
-                <div class="light-effect"></div>
+            <div class="img-container">
+                <!-- 写真本体 -->
+                <img id="pendulumImg" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='200'><rect width='8' height='180' x='46' y='20' fill='%23333'/><circle cx='50' cy='60' r='18' fill='%23d9534f'/></svg>" alt="振り子画像">
+                <!-- 写真の表面に重ねる光・影オーバーレイ -->
+                <div class="photo-light-overlay"></div>
             </div>
         </div>
     </div>
 
-    <!-- コントロール群 -->
+    <!-- コントロールエリア -->
     <div class="controls">
-        <!-- 画像アップロード -->
+        <!-- 好きな画像アップロード -->
         <div class="control-group">
-            <label for="imgUpload">好きな画像:</label>
+            <label for="imgUpload">写真・画像を選択:</label>
             <input type="file" id="imgUpload" accept="image/*" class="file-input">
         </div>
 
-        <!-- 背景色選択 -->
+        <!-- 全体背景色の切り替え -->
         <div class="control-group">
             <label for="bgColorPicker">背景色:</label>
             <input type="color" id="bgColorPicker" value="#f0f0f0">
         </div>
 
-        <!-- 3D・光と影モード -->
+        <!-- 写真自体の反射光・影モード -->
         <div class="control-group">
-            <label for="effectToggle">光・影エフェクト (立体感):</label>
+            <label for="effectToggle">写真内の反射・影エフェクト:</label>
             <label class="switch">
                 <input type="checkbox" id="effectToggle">
                 <span class="slider"></span>
@@ -271,13 +271,13 @@
             <input type="range" id="bpmRange" value="120" min="30" max="250">
         </div>
 
-        <!-- スタート/ストップボタン -->
+        <!-- 再生ボタン -->
         <button id="startBtn">スタート</button>
     </div>
 </div>
 
 <script>
-    // Web Audio API の初期化（クリック音用）
+    // Web Audio API（カチッ音の生成）
     let audioCtx = null;
 
     function playClick() {
@@ -286,8 +286,8 @@
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
 
-        osc.type = 'triangle'; 
-        osc.frequency.setValueAtTime(1200, audioCtx.currentTime); 
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
         
         gain.gain.setValueAtTime(1, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
@@ -299,7 +299,7 @@
         osc.stop(audioCtx.currentTime + 0.03);
     }
 
-    // 要素の取得
+    // DOM要素の取得
     const startBtn = document.getElementById('startBtn');
     const bpmInput = document.getElementById('bpm');
     const bpmRange = document.getElementById('bpmRange');
@@ -311,19 +311,19 @@
 
     let isPlaying = false;
     let timerId = null;
-    let direction = 1; // 1: 右, -1: 左
-    const swingAngle = 30; // 傾く角度
+    let direction = 1; // 1: 右に振る, -1: 左に振る
+    const swingAngle = 30; // 振り幅（度数）
 
     // BPMの入力連動
     bpmInput.addEventListener('input', (e) => bpmRange.value = e.target.value);
     bpmRange.addEventListener('input', (e) => bpmInput.value = e.target.value);
 
-    // 背景色の変更
+    // 全体背景色のリアルタイム変更
     bgColorPicker.addEventListener('input', (e) => {
         document.documentElement.style.setProperty('--bg-color', e.target.value);
     });
 
-    // 光・影エフェクトの切替
+    // 写真内部の反射・影モード切り替え
     effectToggle.addEventListener('change', (e) => {
         if (e.target.checked) {
             pendulum.classList.add('effect-on');
@@ -332,7 +332,7 @@
         }
     });
 
-    // 画像ファイルの読み込み
+    // ユーザー指定画像の読み込み処理
     imgUpload.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -344,28 +344,22 @@
         }
     });
 
-    // メトロノームの1拍分の処理
+    // 1拍（1回振り）の動作処理
     function tick() {
-        // 音を鳴らす
         playClick();
 
-        // 左右に回転
         const currentAngle = direction * swingAngle;
-        
-        // 移動にかかる時間を計算してCSSにセット
         const bpm = parseInt(bpmInput.value, 10);
         const intervalMs = (60 / bpm) * 1000;
+
         pendulum.style.transition = `transform ${intervalMs / 1000}s ease-in-out`;
         pendulum.style.transform = `rotate(${currentAngle}deg)`;
 
-        // 向きを反転
         direction *= -1;
-
-        // 次のタイマーをセット
         timerId = setTimeout(tick, intervalMs);
     }
 
-    // スタート / ストップの切り替え
+    // スタート / ストップの制御
     startBtn.addEventListener('click', () => {
         if (!isPlaying) {
             if (!audioCtx) {
